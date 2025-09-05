@@ -1,0 +1,34 @@
+coinbase:
+  api_key: ""
+  api_secret: ""
+  passphrase: ""
+  sandbox: false
+
+bot:
+  # Asset allocation (must sum to 100)
+  btc_allocation: 80
+  eth_allocation: 20
+  
+  # Investment parameters
+  weekly_base_investment: 100.0  # Base weekly investment in USDC
+  dip_buying_buffer: 0.2        # 20% buffer for dip buying
+  
+  # Fear & Greed Index thresholds
+  fng_buy_threshold: 25         # Buy more when F&G < 25 (extreme fear)
+  fng_sell_threshold: 75        # Sell some when F&G > 75 (extreme greed)
+  
+  # Multiplier ranges for dynamic DCA
+  min_multiplier: 0.5           # Minimum investment multiplier
+  max_multiplier: 2.0           # Maximum investment multiplier
+  
+  # Selling parameters
+  sell_percentage: 0.1          # Sell 10% of holdings when F&G is high
+  
+  # Schedule
+  investment_frequency: "weekly" # weekly, daily, monthly
+  execution_time: "09:00"       # UTC time for execution
+
+# Fear & Greed Index API
+fng:
+  api_url: "https://api.alternative.me/fng/"
+  update_frequency: "1h"

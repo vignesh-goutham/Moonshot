@@ -1,0 +1,66 @@
+# Moonshot DCA Bot Configuration Example
+# Copy this file to config.yaml and modify with your settings
+
+coinbase:
+  api_key: "your_api_key_here"
+  api_secret: "your_api_secret_here"
+  passphrase: "your_passphrase_here"
+  sandbox: false  # Set to true for testing, false for production
+
+bot:
+  # Asset allocation (must sum to 100)
+  btc_allocation: 80
+  eth_allocation: 20
+  
+  # Investment parameters
+  weekly_base_investment: 100.0  # Base weekly investment in USDC
+  dip_buying_buffer: 0.2        # 20% buffer for dip buying
+  
+  # Fear & Greed Index thresholds
+  fng_buy_threshold: 25         # Buy more when F&G < 25 (extreme fear)
+  fng_sell_threshold: 75        # Sell some when F&G > 75 (extreme greed)
+  
+  # Multiplier ranges for dynamic DCA
+  min_multiplier: 0.5           # Minimum investment multiplier
+  max_multiplier: 2.0           # Maximum investment multiplier
+  
+  # Selling parameters
+  sell_percentage: 0.1          # Sell 10% of holdings when F&G is high
+  
+  # Schedule
+  investment_frequency: "weekly" # weekly, daily, monthly
+  execution_time: "09:00"       # UTC time for execution
+
+# Fear & Greed Index API
+fng:
+  api_url: "https://api.alternative.me/fng/"
+  update_frequency: "1h"
+
+# Logging configuration
+logging:
+  level: "info"  # debug, info, warn, error
+  format: "text" # text, json
+  output: "stdout" # stdout, file
+  file_path: "moonshot.log" # Only used if output is "file"
+
+# Risk management
+risk:
+  max_daily_investment: 1000.0  # Maximum daily investment in USDC
+  max_portfolio_value: 100000.0 # Maximum total portfolio value in USDC
+  stop_loss_percentage: 0.15    # Stop loss at 15% decline
+  take_profit_percentage: 0.30  # Take profit at 30% gain
+
+# Notification settings
+notifications:
+  enabled: false
+  email:
+    smtp_server: "smtp.gmail.com"
+    smtp_port: 587
+    username: "your_email@gmail.com"
+    password: "your_app_password"
+    recipients: ["your_email@gmail.com"]
+  slack:
+    webhook_url: "your_slack_webhook_url"
+  telegram:
+    bot_token: "your_telegram_bot_token"
+    chat_id: "your_chat_id"
