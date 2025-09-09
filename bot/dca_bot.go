@@ -64,17 +64,30 @@ func (b *DCABot) Execute() (*types.ExecutionResult, error) {
 	}
 
 	totalInvested := decimal.Zero
+	successfulOrders := 0
+	failedOrders := 0
 
 	for _, decision := range decisions {
 		if decision.Action == "buy" {
 			if err := b.executeBuyOrder(decision); err != nil {
-				log.Printf("Failed to execute buy order: %v", err)
+				log.Printf("❌ Failed to execute buy order: %v", err)
 				executionResult.Success = false
 				executionResult.Error = err.Error()
+				failedOrders++
 			} else {
 				totalInvested = totalInvested.Add(decision.Amount)
+				successfulOrders++
 			}
 		}
+	}
+
+	// Log execution summary
+	if successfulOrders > 0 {
+		log.Printf("✅ Successfully placed %d orders, total invested: $%s USD",
+			successfulOrders, totalInvested.String())
+	}
+	if failedOrders > 0 {
+		log.Printf("❌ Failed to place %d orders", failedOrders)
 	}
 
 	executionResult.TotalInvested = totalInvested
@@ -177,13 +190,40 @@ func (b *DCABot) calculateDynamicBuffer(fngValue int) decimal.Decimal {
 func (b *DCABot) executeBuyOrder(decision types.InvestmentDecision) error {
 	productID := decision.Asset + "-USDC"
 
+	// Check if we have sufficient USDC balance
+	if b.portfolio.USDCBalance.LessThan(decision.Amount) {
+		return fmt.Errorf("insufficient USDC balance: have %s, need %s",
+			b.portfolio.USDCBalance.String(), decision.Amount.String())
+	}
+
 	// Calculate size in asset units
 	size := decision.Amount.Div(decision.Price)
 
-	log.Printf("Placing buy order: %s %s at market price", size.String(), decision.Asset)
+	// Log the investment details
+	log.Printf("💰 Investing $%s USD in %s (%.6f %s at $%s per %s)",
+		decision.Amount.String(),
+		decision.Asset,
+		size.InexactFloat64(),
+		decision.Asset,
+		decision.Price.String(),
+		decision.Asset)
 
-	_, err := b.coinbaseService.PlaceOrder(productID, "buy", "market", size.String(), "")
-	return err
+	log.Printf("📊 Placing BUY order: %.6f %s at market price", size.InexactFloat64(), decision.Asset)
+
+	orderResp, err := b.coinbaseService.PlaceOrder(productID, "BUY", "market", size.String(), "")
+	if err != nil {
+		return fmt.Errorf("failed to place order: %w", err)
+	}
+
+	// Log order result
+	if orderResp.Success {
+		log.Printf("✅ Order placed successfully! Order ID: %s", orderResp.OrderId)
+	} else {
+		log.Printf("❌ Order failed: %s", orderResp.FailureReason)
+		return fmt.Errorf("order failed: %s", orderResp.FailureReason)
+	}
+
+	return nil
 }
 
 // getAssetPrice gets the current price of an asset

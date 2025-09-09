@@ -66,10 +66,9 @@ type BotConfig struct {
 
 // CoinbaseConfig represents Coinbase Advanced API configuration
 type CoinbaseConfig struct {
-	APIKey     string `json:"api_key"`
-	APISecret  string `json:"api_secret"`
-	Passphrase string `json:"passphrase"`
-	Sandbox    bool   `json:"sandbox"`
+	APIKey    string `json:"api_key"`
+	APISecret string `json:"api_secret"`
+	Sandbox   bool   `json:"sandbox"`
 }
 
 // ExecutionResult represents the result of a bot execution

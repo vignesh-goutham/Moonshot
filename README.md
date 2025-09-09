@@ -7,8 +7,8 @@ Moonshot is an intelligent Dollar Cost Averaging (DCA) bot for cryptocurrency th
 - **Dynamic DCA**: Investment amounts automatically adjust based on market sentiment
 - **Fear & Greed Index Integration**: Uses market sentiment to determine buy amounts
 - **Smart Portfolio Management**: Automatically maintains 80% BTC / 20% ETH allocation
-- **Dip Buying Strategy**: Reserves funds for buying during market dips
-- **Coinbase Advanced Integration**: Direct trading through Coinbase's advanced trading platform
+- **Dynamic Buffer System**: Automatically adjusts cash buffer based on market conditions
+- **Official Coinbase SDK**: Uses the official Coinbase Advanced Trade SDK for reliable API integration
 - **Lambda Ready**: Deploys to AWS Lambda for automated execution
 - **Environment Variables**: Simple configuration through environment variables
 
@@ -78,7 +78,6 @@ cp env.template .env
 # Coinbase Advanced API Credentials
 COINBASE_API_KEY=your_api_key
 COINBASE_API_SECRET=your_api_secret
-COINBASE_PASSPHRASE=your_passphrase
 ```
 
 ### Optional Environment Variables (with defaults)
@@ -104,13 +103,35 @@ LAMBDA_NAME=moonshot-dca-bot
 
 ### Coinbase API Setup
 
-1. Log into your Coinbase Advanced account
-2. Go to API settings
-3. Create a new API key with the following permissions:
+**IMPORTANT**: The Coinbase Advanced Trade API requires different credentials than the old Coinbase Pro API. You need to generate credentials through the Coinbase Developer Platform.
+
+1. Go to [Coinbase Developer Platform](https://portal.cdp.coinbase.com/)
+2. Create a new application
+3. Generate API credentials with the following permissions:
    - View account information
    - Place orders
    - View orders
-4. Save your API key, secret, and passphrase
+4. Copy your **API Key ID** and **Private PEM Key** (not a simple secret!)
+5. Set the environment variables using one of these methods:
+
+**Method 1: JSON format (RECOMMENDED)**
+```bash
+COINBASE_CREDENTIALS_JSON={"accessKey":"your_api_key_id","privatePemKey":"-----BEGIN EC PRIVATE KEY-----\nyour_key_here\n-----END EC PRIVATE KEY-----"}
+```
+
+**Method 2: Individual credentials (fallback for local development)**
+```bash
+COINBASE_API_KEY=your_api_key_id
+COINBASE_API_SECRET=-----BEGIN EC PRIVATE KEY-----
+your_base64_encoded_private_key_here
+-----END EC PRIVATE KEY-----
+```
+
+**Important Notes**:
+- The private key must be in PEM format (starts with `-----BEGIN EC PRIVATE KEY-----`)
+- For AWS Lambda, use the JSON format because environment variables are single-line strings
+- In the JSON format, use `\n` for newlines in the `privatePemKey` field
+- If you're getting "failed to parse PEM block" errors, you're likely using the wrong credential format or need to use the JSON format
 
 ## Usage
 

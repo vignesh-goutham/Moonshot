@@ -108,17 +108,16 @@ func loadConfigFromEnv() (*types.BotConfig, *types.CoinbaseConfig, error) {
 	botConfig.InvestmentFrequency = getEnvString("INVESTMENT_FREQUENCY", "weekly")
 	botConfig.ExecutionTime = getEnvString("EXECUTION_TIME", "09:00")
 
-	// Load Coinbase configuration
-	coinbaseConfig := &types.CoinbaseConfig{
-		APIKey:     getEnvString("COINBASE_API_KEY", ""),
-		APISecret:  getEnvString("COINBASE_API_SECRET", ""),
-		Passphrase: getEnvString("COINBASE_PASSPHRASE", ""),
-		Sandbox:    getEnvBool("COINBASE_SANDBOX", false),
+	// Load Coinbase configuration using the new credential loading method
+	creds, err := services.LoadCredentialsFromEnv()
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to load Coinbase credentials: %w", err)
 	}
 
-	// Validate required Coinbase credentials
-	if coinbaseConfig.APIKey == "" || coinbaseConfig.APISecret == "" || coinbaseConfig.Passphrase == "" {
-		return nil, nil, fmt.Errorf("Coinbase API credentials are required")
+	coinbaseConfig := &types.CoinbaseConfig{
+		APIKey:    creds.AccessKey,
+		APISecret: creds.PrivatePemKey,
+		Sandbox:   getEnvBool("COINBASE_SANDBOX", false),
 	}
 
 	return botConfig, coinbaseConfig, nil

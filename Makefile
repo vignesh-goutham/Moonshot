@@ -22,8 +22,8 @@ all: build
 build: deps
 	@echo "Building Moonshot DCA Bot for Lambda..."
 	@mkdir -p $(BUILD_DIR)
-	GOOS=linux GOARCH=amd64 go build -o $(BUILD_DIR)/$(BINARY_NAME) cmd/moonshot/main.go
-	@echo "Build complete: $(BUILD_DIR)/$(BINARY_NAME)"
+	GOOS=linux GOARCH=amd64 go build -o $(BUILD_DIR)/bootstrap cmd/moonshot/main.go
+	@echo "Build complete: $(BUILD_DIR)/bootstrap"
 
 # Install dependencies
 deps:
@@ -45,7 +45,7 @@ test: deps
 # Package Lambda function
 package-lambda: build
 	@echo "Packaging Lambda function..."
-	@cd $(BUILD_DIR) && zip -r $(BINARY_NAME).zip $(BINARY_NAME)
+	@cd $(BUILD_DIR) && rm -f $(BINARY_NAME).zip && zip -r $(BINARY_NAME).zip bootstrap
 	@echo "Lambda package created: $(BUILD_DIR)/$(BINARY_NAME).zip"
 
 # Deploy to AWS Lambda
@@ -78,12 +78,12 @@ deploy-lambda: package-lambda
 test-lambda: build
 	@echo "Testing Lambda function locally..."
 	@echo "You can test the function with:"
-	@echo "  echo '{}' | ./$(BUILD_DIR)/$(BINARY_NAME)"
+	@echo "  echo '{}' | ./$(BUILD_DIR)/bootstrap"
 
 # Install to system (optional)
 install: build
 	@echo "Installing Moonshot to system..."
-	sudo cp $(BUILD_DIR)/$(BINARY_NAME) /usr/local/bin/
+	sudo cp $(BUILD_DIR)/bootstrap /usr/local/bin/moonshot
 	@echo "Installation complete. Run 'moonshot --help' for usage."
 
 # Development mode with hot reload (requires air)
